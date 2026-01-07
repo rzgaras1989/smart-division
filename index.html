@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>سمارت دیڤیژن - Smart Division</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <style>
         :root { --black: #1e272e; --yellow: #f1c40f; --res: #00cec9; }
         body { font-family: Tahoma, sans-serif; background: #f0f2f5; padding: 10px; margin: 0; direction: rtl; }
@@ -23,7 +23,6 @@
         .tag:active .menu, .tag:hover .menu { display: flex; }
         .m-btn { font-size: 9px; padding: 4px 2px; border: none; border-radius: 3px; cursor: pointer; color: white; flex: 1; }
 
-        /* تەنها ئەم بەشە وێنەی دەگیرێت */
         #export-area { padding: 15px; background: #ffffff; border-radius: 10px; border: 1px solid #eee; }
         .row { display: flex; gap: 10px; margin-bottom: 10px; }
         .box { flex: 1; padding: 10px; border-radius: 10px; min-height: 280px; }
@@ -70,7 +69,7 @@
 </div>
 
 <script>
-    // لیستی ناوی جێگیر کە خۆت داوات کردبوو
+    // لیستی ناوی جێگیر
     const initialNames = [
         "هیلال", "ڕێکەوت", "کاکەخان", "م.جلال", "کاک جبار", "کاک بێستون", 
         "م.وریا", "م.پێشڕەو", "م.بینەر", "م.سۆران", "م.شێرکۆ", "م.سیروان", 
@@ -135,13 +134,24 @@
         render();
     }
 
+    // چاککردنی فانکشنی وێنەگرتن بۆ گیتھەب و مۆبایل
     function takeShot() {
         const area = document.getElementById('export-area');
-        html2canvas(area, { backgroundColor: "#ffffff", scale: 2 }).then(canvas => {
+        window.scrollTo(0,0);
+        html2canvas(area, { 
+            backgroundColor: "#ffffff", 
+            scale: 2,
+            useCORS: true,
+            allowTaint: true
+        }).then(canvas => {
             const link = document.createElement('a');
-            link.download = 'smart-division-16.png';
-            link.href = canvas.toDataURL();
+            link.download = 'smart-division-match.png';
+            link.href = canvas.toDataURL("image/png");
+            document.body.appendChild(link);
             link.click();
+            document.body.removeChild(link);
+        }).catch(err => {
+            alert("هەڵەیەک ڕوویدا، دڵنیابە لە وێبگەڕی مۆبایل (Chrome/Safari) لینکەکەت کردووەتەوە.");
         });
     }
 
@@ -149,3 +159,4 @@
 </script>
 </body>
 </html>
+
