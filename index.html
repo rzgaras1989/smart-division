@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ku" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سمارت دیڤیژن - Smart Division</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root { --black: #1e272e; --yellow: #f1c40f; --res: #00cec9; }
+        body { font-family: Tahoma, sans-serif; background: #f0f2f5; padding: 10px; margin: 0; direction: rtl; }
+        .no-export { background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .input-group { display: flex; gap: 5px; margin-bottom: 10px; }
+        input { padding: 12px; border: 2px solid #ddd; border-radius: 5px; flex: 1; font-size: 16px; }
+        .btn { padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .add-btn { background: #0984e3; color: white; }
+        .shot-btn { background: #6c5ce7; color: white; width: 100%; margin-top: 10px; font-size: 16px; height: 45px; }
+        
+        #pool { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-top: 10px; }
+        @media (max-width: 600px) { #pool { grid-template-columns: repeat(3, 1fr); } }
+
+        .tag { background: #fff; padding: 10px 2px; border-radius: 5px; cursor: pointer; position: relative; font-size: 12px; font-weight: bold; border: 1px solid #ccc; text-align: center; }
+        .menu { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95); gap: 2px; align-items: center; justify-content: center; z-index: 5; border-radius: 5px; }
+        .tag:active .menu, .tag:hover .menu { display: flex; }
+        .m-btn { font-size: 9px; padding: 4px 2px; border: none; border-radius: 3px; cursor: pointer; color: white; flex: 1; }
+
+        /* تەنها ئەم بەشە وێنەی دەگیرێت */
+        #export-area { padding: 15px; background: #ffffff; border-radius: 10px; border: 1px solid #eee; }
+        .row { display: flex; gap: 10px; margin-bottom: 10px; }
+        .box { flex: 1; padding: 10px; border-radius: 10px; min-height: 280px; }
+        .b-black { background: var(--black); color: white; }
+        .b-yellow { background: var(--yellow); color: black; }
+
+        .slot { background: rgba(255,255,255,0.1); border: 1px dashed rgba(255,255,255,0.3); margin: 5px 0; padding: 8px; border-radius: 6px; display: flex; justify-content: space-between; font-size: 13px; min-height: 18px; }
+        .b-yellow .slot { background: rgba(0,0,0,0.05); border-color: rgba(0,0,0,0.2); }
+        .filled { border-style: solid; background: rgba(255,255,255,0.2); font-weight: bold; }
+        .del-x { color: #ff7675; cursor: pointer; font-weight: bold; padding: 0 5px; }
+
+        .res-container { background: #e0f7f6; padding: 10px; border-radius: 10px; margin-top: 10px; border: 1px solid var(--res); }
+    </style>
+</head>
+<body>
+
+<div class="no-export">
+    <h2 style="margin:0 0 10px 0; text-align:center;">سمارت دیڤیژن - Smart Division</h2>
+    <div class="input-group">
+        <input type="text" id="pName" placeholder="ناوی نوێ بنووسە...">
+        <button class="btn add-btn" onclick="addP()">زیادکردن</button>
+    </div>
+    <div id="pool"></div>
+    <button class="btn shot-btn" onclick="takeShot()">📷 دابەزاندنی وێنەی خشتەی یاری (16 کەس)</button>
+</div>
+
+<div id="export-area">
+    <h3 style="text-align: center; margin: 0 0 15px 0; color: #333;">خشتەی یاری (سمارت دیڤیژن)</h3>
+    <div class="row">
+        <div class="box b-black">
+            <h4 style="margin:0 0 10px 0; text-align:center;">تیپی ڕەش (<span id="cB">0</span>/8)</h4>
+            <div id="listB"></div>
+        </div>
+        <div class="box b-yellow">
+            <h4 style="margin:0 0 10px 0; text-align:center;">تیپی زەرد (<span id="cY">0</span>/8)</h4>
+            <div id="listY"></div>
+        </div>
+    </div>
+</div>
+
+<div class="res-container">
+    <h4 style="margin:0 0 10px 0; color: #00897b;">لیستی یەدەگ</h4>
+    <div id="listR" style="display: flex; flex-wrap: wrap; gap: 5px;"></div>
+</div>
+
+<script>
+    // لیستی ناوی جێگیر کە خۆت داوات کردبوو
+    const initialNames = [
+        "هیلال", "ڕێکەوت", "کاکەخان", "م.جلال", "کاک جبار", "کاک بێستون", 
+        "م.وریا", "م.پێشڕەو", "م.بینەر", "م.سۆران", "م.شێرکۆ", "م.سیروان", 
+        "قانع", "کاک بێباک", "هێرش", "و.بەهێز", "سەرباز", "م.ئارام", 
+        "سیروان کافۆ", "م.ڕزگار", "شێخ غازی"
+    ];
+
+    let data = initialNames.map((name, index) => ({ n: name, s: 'p', id: index }));
+
+    function render() {
+        const poolEl = document.getElementById('pool');
+        poolEl.innerHTML = "";
+        
+        data.filter(x => x.s == 'p').forEach(x => {
+            const div = document.createElement('div');
+            div.className = 'tag';
+            div.innerHTML = `${x.n}
+                <div class="menu">
+                    <button class="m-btn" style="background:var(--black)" onclick="move(${x.id},'b')">ڕەش</button>
+                    <button class="m-btn" style="background:var(--yellow);color:black" onclick="move(${x.id},'y')">زەرد</button>
+                    <button class="m-btn" style="background:var(--res)" onclick="move(${x.id},'r')">یەدەگ</button>
+                </div>`;
+            poolEl.appendChild(div);
+        });
+
+        const drawTeam = (listId, status, countId) => {
+            const listEl = document.getElementById(listId);
+            const teamPlayers = data.filter(x => x.s == status);
+            listEl.innerHTML = "";
+            for(let i=0; i<8; i++) {
+                const p = teamPlayers[i];
+                listEl.innerHTML += `<div class="slot ${p?'filled':''}">
+                    ${p ? `<span>${p.n}</span><span class="del-x" onclick="move(${p.id},'p')">×</span>` : 'بەتاڵ'}
+                </div>`;
+            }
+            document.getElementById(countId).innerText = teamPlayers.length;
+        };
+
+        drawTeam('listB', 'b', 'cB');
+        drawTeam('listY', 'y', 'cY');
+
+        const resEl = document.getElementById('listR');
+        resEl.innerHTML = "";
+        data.filter(x => x.s == 'r').forEach(x => {
+            resEl.innerHTML += `<div class="tag" style="background:#fff; min-width:70px;">${x.n} <span class="del-x" style="font-size:14px" onclick="move(${x.id},'p')">×</span></div>`;
+        });
+    }
+
+    function addP() {
+        const input = document.getElementById('pName');
+        if(!input.value.trim()) return;
+        data.push({ n: input.value, s: 'p', id: Date.now() });
+        input.value = "";
+        render();
+    }
+
+    function move(id, newS) {
+        if(newS != 'p' && newS != 'r' && data.filter(x => x.s == newS).length >= 8) {
+            alert("ئەم تیپە 8 کەسی تەواوە!"); return;
+        }
+        data = data.map(x => x.id === id ? { ...x, s: newS } : x);
+        render();
+    }
+
+    function takeShot() {
+        const area = document.getElementById('export-area');
+        html2canvas(area, { backgroundColor: "#ffffff", scale: 2 }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = 'smart-division-16.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        });
+    }
+
+    render();
+</script>
+</body>
+</html>
