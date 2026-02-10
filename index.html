@@ -6,103 +6,110 @@
     <title>سمارت دیڤیژن - Smart Division</title>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <style>
-        :root { --black: #1e272e; --yellow: #f1c40f; --res: #00cec9; }
-        body { font-family: Tahoma, sans-serif; background: #f0f2f5; padding: 10px; margin: 0; direction: rtl; }
-        .no-export { background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        :root { --black-theme: #2d3436; --yellow-theme: #fbc531; --bg: #f5f6fa; }
+        body { font-family: Tahoma, sans-serif; background: var(--bg); padding: 10px; margin: 0; direction: rtl; }
+        .no-export { background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         .input-group { display: flex; gap: 5px; margin-bottom: 10px; }
-        input { padding: 12px; border: 2px solid #ddd; border-radius: 5px; flex: 1; font-size: 16px; }
-        .btn { padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        .add-btn { background: #0984e3; color: white; }
-        .shot-btn { background: #6c5ce7; color: white; width: 100%; margin-top: 10px; font-size: 16px; height: 45px; }
+        input { padding: 12px; border: 2px solid #ddd; border-radius: 8px; flex: 1; font-size: 16px; outline: none; }
+        .btn { padding: 10px 15px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .add-btn { background: #00b894; color: white; }
+        .shot-btn { background: #6c5ce7; color: white; width: 100%; margin-top: 10px; font-size: 16px; height: 50px; }
         
-        #pool { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-top: 10px; }
+        #pool { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 10px; }
         @media (max-width: 600px) { #pool { grid-template-columns: repeat(3, 1fr); } }
 
-        .tag { background: #fff; padding: 10px 2px; border-radius: 5px; cursor: pointer; position: relative; font-size: 12px; font-weight: bold; border: 1px solid #ccc; text-align: center; }
-        .menu { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95); gap: 2px; align-items: center; justify-content: center; z-index: 5; border-radius: 5px; }
-        .tag:active .menu, .tag:hover .menu { display: flex; }
-        .m-btn { font-size: 9px; padding: 4px 2px; border: none; border-radius: 3px; cursor: pointer; color: white; flex: 1; }
+        .tag { background: #fff; padding: 12px 5px; border-radius: 8px; cursor: pointer; position: relative; font-size: 13px; font-weight: bold; border: 1px solid #dfe6e9; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .menu { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.98); gap: 4px; align-items: center; justify-content: center; z-index: 5; border-radius: 8px; }
+        .tag:hover .menu { display: flex; }
+        .m-btn { font-size: 10px; padding: 5px 4px; border: none; border-radius: 4px; cursor: pointer; color: white; flex: 1; }
 
-        #export-area { padding: 15px; background: #ffffff; border-radius: 10px; border: 1px solid #eee; }
-        .row { display: flex; gap: 10px; margin-bottom: 10px; }
-        .box { flex: 1; padding: 10px; border-radius: 10px; min-height: 280px; }
-        .b-black { background: var(--black); color: white; }
-        .b-yellow { background: var(--yellow); color: black; }
+        /* دیزاینی نوێی خشتەکە بە ڕەنگی سپی */
+        #export-area { padding: 20px; background: #ffffff; border-radius: 15px; border: 1px solid #ddd; }
+        .row { display: flex; gap: 15px; margin-bottom: 10px; }
+        .box { flex: 1; padding: 15px; border-radius: 12px; min-height: 380px; background: #ffffff; border: 2px solid #f1f2f6; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        
+        /* جیاکەرەوەی سەرەوەی بۆکسەکان */
+        .header-b { border-top: 6px solid var(--black-theme); padding-top: 10px; }
+        .header-y { border-top: 6px solid var(--yellow-theme); padding-top: 10px; }
 
-        .slot { background: rgba(255,255,255,0.1); border: 1px dashed rgba(255,255,255,0.3); margin: 5px 0; padding: 8px; border-radius: 6px; display: flex; justify-content: space-between; font-size: 13px; min-height: 18px; }
-        .b-yellow .slot { background: rgba(0,0,0,0.05); border-color: rgba(0,0,0,0.2); }
-        .filled { border-style: solid; background: rgba(255,255,255,0.2); font-weight: bold; }
-        .del-x { color: #ff7675; cursor: pointer; font-weight: bold; padding: 0 5px; }
+        .slot { background: #f9f9f9; border: 1px solid #eee; margin: 6px 0; padding: 10px; border-radius: 8px; display: flex; justify-content: space-between; font-size: 14px; min-height: 20px; color: #b2bec3; }
+        .filled { border: 1.5px solid #d1d8e0; background: #ffffff; font-weight: bold; color: #2d3436; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }
+        .del-x { color: #ff7675; cursor: pointer; font-weight: bold; padding: 0 8px; font-size: 18px; }
 
-        .res-container { background: #e0f7f6; padding: 10px; border-radius: 10px; margin-top: 10px; border: 1px solid var(--res); }
+        .res-container { background: #fff; padding: 15px; border-radius: 12px; margin-top: 10px; border: 1px solid #dfe6e9; }
     </style>
 </head>
 <body>
 
 <div class="no-export">
-    <h2 style="margin:0 0 10px 0; text-align:center;">سمارت دیڤیژن - Smart Division</h2>
+    <h2 style="margin:0 0 15px 0; text-align:center; color: #2d3436;">سیستەمی Smart Division</h2>
     <div class="input-group">
-        <input type="text" id="pName" placeholder="ناوی نوێ بنووسە...">
+        <input type="text" id="pName" placeholder="ناوی یاریزانی نوێ...">
         <button class="btn add-btn" onclick="addP()">زیادکردن</button>
     </div>
     <div id="pool"></div>
-    <button class="btn shot-btn" onclick="takeShot()">📷 دابەزاندنی وێنەی خشتەی یاری (16 کەس)</button>
+    <button class="btn shot-btn" onclick="takeShot()">📷 دابەزاندنی وێنەی خشتەی یاری</button>
 </div>
 
 <div id="export-area">
-    <h3 style="text-align: center; margin: 0 0 15px 0; color: #333;">خشتەی یاری (سمارت دیڤیژن)</h3>
+    <h2 style="text-align: center; margin: 0 0 20px 0; color: #2d3436; font-family: Arial;">خشتەی یارییەکان</h2>
     <div class="row">
-        <div class="box b-black">
-            <h4 style="margin:0 0 10px 0; text-align:center;">تیپی ڕەش (<span id="cB">0</span>/8)</h4>
+        <div class="box header-b">
+            <h3 style="margin:0 0 15px 0; text-align:center; color: var(--black-theme);">تیپی ڕەش (<span id="cB">0</span>/8)</h3>
             <div id="listB"></div>
         </div>
-        <div class="box b-yellow">
-            <h4 style="margin:0 0 10px 0; text-align:center;">تیپی زەرد (<span id="cY">0</span>/8)</h4>
+        <div class="box header-y">
+            <h3 style="margin:0 0 15px 0; text-align:center; color: #d4a017;">تیپی زەرد (<span id="cY">0</span>/8)</h3>
             <div id="listY"></div>
         </div>
     </div>
 </div>
 
 <div class="res-container">
-    <h4 style="margin:0 0 10px 0; color: #00897b;">لیستی یەدەگ</h4>
-    <div id="listR" style="display: flex; flex-wrap: wrap; gap: 5px;"></div>
+    <h4 style="margin:0 0 10px 0; color: #636e72;">لیستی یەدەگ</h4>
+    <div id="listR" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
 </div>
 
 <script>
-    // لیستی ناوی جێگیر
+    // لیستی ناوەکان (سەرباز و پێشڕەو لادران، عومەر و ئومێد زیادکران)
     const initialNames = [
         "هیلال", "ڕێکەوت", "کاکەخان", "م.جلال", "کاک جبار", "کاک بێستون", 
-        "م.وریا", "م.پێشڕەو", "م.بینەر", "م.سۆران", "م.شێرکۆ", "م.سیروان", 
-        "قانع", "کاک بێباک", "هێرش", "و.بەهێز", "سەرباز", "م.ئارام", 
+        "م.وریا", "عومەر", "م.بینەر", "م.سۆران", "م.شێرکۆ", "م.سیروان", 
+        "قانع", "کاک بێباک", "هێرش", "و.بەهێز", "ئومێد", "م.ئارام", 
         "سیروان کافۆ", "م.ڕزگار", "شێخ غازی"
     ];
 
+    // دروستکردنی ستراکچەری داتا
     let data = initialNames.map((name, index) => ({ n: name, s: 'p', id: index }));
 
     function render() {
         const poolEl = document.getElementById('pool');
         poolEl.innerHTML = "";
         
+        // نیشاندانی یاریزانەکان لە حەوزەکەدا
         data.filter(x => x.s == 'p').forEach(x => {
             const div = document.createElement('div');
             div.className = 'tag';
             div.innerHTML = `${x.n}
                 <div class="menu">
-                    <button class="m-btn" style="background:var(--black)" onclick="move(${x.id},'b')">ڕەش</button>
-                    <button class="m-btn" style="background:var(--yellow);color:black" onclick="move(${x.id},'y')">زەرد</button>
-                    <button class="m-btn" style="background:var(--res)" onclick="move(${x.id},'r')">یەدەگ</button>
+                    <button class="m-btn" style="background:var(--black-theme)" onclick="move(${x.id},'b')">ڕەش</button>
+                    <button class="m-btn" style="background:var(--yellow-theme);color:black" onclick="move(${x.id},'y')">زەرد</button>
+                    <button class="m-btn" style="background:#00cec9" onclick="move(${x.id},'r')">یەدەگ</button>
                 </div>`;
             poolEl.appendChild(div);
         });
 
+        // فۆرماتکردنی لیستی تیپەکان
         const drawTeam = (listId, status, countId) => {
             const listEl = document.getElementById(listId);
             const teamPlayers = data.filter(x => x.s == status);
             listEl.innerHTML = "";
+            
+            // دروستکردنی 8 خانە بە ڕیزبەندی جێگیر
             for(let i=0; i<8; i++) {
                 const p = teamPlayers[i];
                 listEl.innerHTML += `<div class="slot ${p?'filled':''}">
-                    ${p ? `<span>${p.n}</span><span class="del-x" onclick="move(${p.id},'p')">×</span>` : 'بەتاڵ'}
+                    ${p ? `<span>${p.n}</span><span class="del-x" onclick="move(${p.id},'p')">×</span>` : 'بەتاڵ...'}
                 </div>`;
             }
             document.getElementById(countId).innerText = teamPlayers.length;
@@ -111,10 +118,11 @@
         drawTeam('listB', 'b', 'cB');
         drawTeam('listY', 'y', 'cY');
 
+        // لیستی یەدەگ
         const resEl = document.getElementById('listR');
         resEl.innerHTML = "";
         data.filter(x => x.s == 'r').forEach(x => {
-            resEl.innerHTML += `<div class="tag" style="background:#fff; min-width:70px;">${x.n} <span class="del-x" style="font-size:14px" onclick="move(${x.id},'p')">×</span></div>`;
+            resEl.innerHTML += `<div class="tag" style="background:#fff; min-width:80px; border-color:#00cec9;">${x.n} <span class="del-x" style="font-size:14px" onclick="move(${x.id},'p')">×</span></div>`;
         });
     }
 
@@ -127,31 +135,31 @@
     }
 
     function move(id, newS) {
+        // پشکنینی ئەوەی کە ئایا تیپەکە پڕ بووە یان نا
         if(newS != 'p' && newS != 'r' && data.filter(x => x.s == newS).length >= 8) {
-            alert("ئەم تیپە 8 کەسی تەواوە!"); return;
+            alert("ئەم تیپە 8 کەسی تەواوە!"); 
+            return;
         }
+        
+        // گۆڕینی ستاتۆسی یاریزان بەبێ تێکدانی ڕیزبەندی ئەوانی تر
         data = data.map(x => x.id === id ? { ...x, s: newS } : x);
         render();
     }
 
-    // چاککردنی فانکشنی وێنەگرتن بۆ گیتھەب و مۆبایل
     function takeShot() {
         const area = document.getElementById('export-area');
         window.scrollTo(0,0);
         html2canvas(area, { 
             backgroundColor: "#ffffff", 
-            scale: 2,
-            useCORS: true,
-            allowTaint: true
+            scale: 3, // کوالێتی بەرزتر
+            useCORS: true
         }).then(canvas => {
             const link = document.createElement('a');
-            link.download = 'smart-division-match.png';
+            link.download = 'Smart-Division-Match.png';
             link.href = canvas.toDataURL("image/png");
-            document.body.appendChild(link);
             link.click();
-            document.body.removeChild(link);
         }).catch(err => {
-            alert("هەڵەیەک ڕوویدا، دڵنیابە لە وێبگەڕی مۆبایل (Chrome/Safari) لینکەکەت کردووەتەوە.");
+            alert("تکایە Chrome یان Safari بەکاربهێنە بۆ دابەزاندنی وێنەکە.");
         });
     }
 
@@ -159,4 +167,3 @@
 </script>
 </body>
 </html>
-
